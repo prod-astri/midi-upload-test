@@ -1,24 +1,23 @@
 // components/AddMovie/index.jsx
 
 import React, { Component } from 'react';
-
+import { useState } from "react";
 // import the service file since we need it to send (and get) the data to(from) the server
 import service from '../api/service';
 
-class AddSong extends Component {
-  state = {
-    title: '',
-    description: '',
-    songUrl: ''
-  };
+function AddSong() {
+ 
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [songUrl, setSongUrl] = useState('');
 
-  handleChange = e => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
-  };
+  // handleChange = e => {
+  //   const { name, value } = e.target;
+  //   this.setState({ [name]: value });
+  // };
 
   // ******** this method handles just the file upload ********
-  handleFileUpload = e => {
+  const handleFileUpload = e => {
     console.log("The file to be uploaded is: ", e.target.files[0]);
 
     const uploadData = new FormData();
@@ -32,17 +31,17 @@ class AddSong extends Component {
       .then(response => {
         // console.log("response is: ", response);
         // after the console.log we can see that response carries 'secure_url' which we can use to update the state
-        this.setState({ songUrl: response.secure_url });
+        setSongUrl(response.secure_url);
       })
       .catch(err => console.log('Error while uploading the file: ', err));
   };
 
   // this method submits the form
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
 
     service
-      .saveNewSong(this.state)
+      .saveNewSong({ title, description, songUrl })
       .then(res => {
         console.log('added new song: ', res);
         // here you would redirect to some other page
@@ -50,26 +49,26 @@ class AddSong extends Component {
       .catch(err => console.log('Error while adding the new song: ', err));
   };
 
-  render() {
+
     return (
       <div>
         <h2>New Song</h2>
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <label>
             Name
-            <input type="text" name="title" value={this.state.title} onChange={this.handleChange} />
+            <input type="text" name="title" value={title} onChange={e => setTitle(e.target.value)} />
           </label>
 
           <label>Description</label>
-          <textarea type="text" name="description" value={this.state.description} onChange={this.handleChange} />
+          <textarea type="text" name="description" value={description} onChange={e => setDescription(e.target.value)} />
 
-          <input type="file" onChange={this.handleFileUpload} />
+          <input type="file" onChange={handleFileUpload} />
 
           <button type="submit">Save new movie</button>
         </form>
       </div>
     );
   }
-}
+
 
 export default AddSong;
